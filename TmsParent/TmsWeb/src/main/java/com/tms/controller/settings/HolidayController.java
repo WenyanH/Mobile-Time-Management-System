@@ -1,0 +1,117 @@
+package com.tms.controller.settings;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tms.controller.base.BaseController;
+import com.tms.entity.User;
+import com.tms.entity.tms.Holiday;
+import com.tms.service.tms.TMSService;
+import com.tms.utils.ProcessSignUtils;
+import com.tms.utils.SessionUtils;
+
+@RequestMapping("/holiday")
+@Controller
+public class HolidayController extends BaseController<Object> {
+
+	@Autowired
+	private TMSService tmsService;
+
+	@RequestMapping("/list")
+	public ModelAndView holidayList(HttpServletResponse response,
+			HttpServletRequest request) throws Exception {
+		ModelAndView view = holidayListValue(response, request);
+		view.setViewName("tms/holiday/holidaylist");
+		return view;
+	}
+
+	@RequestMapping("/list_nd")
+	public ModelAndView holidayListValue(HttpServletResponse response,
+			HttpServletRequest request) throws Exception {
+		ModelAndView view = new ModelAndView();
+		User user = SessionUtils.getUser(request);
+		List<Holiday> holidays = tmsService.findAllHoliday(user.getCompany()
+				.getId());
+		view.getModelMap().put("holidays", holidays);
+		view.setViewName("tms/holiday/holidaylisttable");
+		return view;
+	}
+
+	@RequestMapping("/create")
+	public ModelAndView createHoliday(HttpServletResponse response,
+			HttpServletRequest request) throws Exception {
+		ModelAndView view = new ModelAndView();
+		view.setViewName("tms/holiday/saveholiday");
+		return view;
+	}
+
+	@RequestMapping("/update")
+	public ModelAndView updateHoliday(String id, HttpServletResponse response,
+			HttpServletRequest request) throws Exception {
+		ModelAndView view = new ModelAndView();
+		Holiday holiday = tmsService.findHolidayById(id);
+		view.getModel().put("holiday", holiday);
+		view.setViewName("tms/holiday/saveholiday");
+		return view;
+	}
+
+	@RequestMapping("/save")
+	public ModelAndView saveHoliday(Holiday holiday,
+			HttpServletResponse response, HttpServletRequest request)
+			throws Exception {
+		ModelAndView view = new ModelAndView();
+		try {
+
+			User user = SessionUtils.getUser(request);
+			holiday.setCompany(user.getCompany());
+			if (StringUtils.isEmpty(holiday.getId())) {
+				if (tmsService.validateHolidayCodeExist(holiday.getCode(), user
+						.getCompany().getId())) {
+					view.getModel().put("message", "exist");
+					return view;
+				} else {
+					tmsService.saveHoliday(holiday);
+				}
+			} else {
+				Holiday tmp = tmsService.findHolidayById(holiday.getId());
+				holiday.setCreateTime(tmp.getCreateTime());
+				if (tmp.getCode().equals(holiday.getCode())) {
+					tmsService.updateHoliday(holiday);
+				} else {
+					if (tmsService.validateHolidayCodeExist(holiday.getCode(),
+							user.getCompany().getId())) {
+						view.getModel().put("message", "exist");
+						return view;
+					} else {
+						tmsService.updateHoliday(holiday);
+					}
+				}
+			}
+			view.getModel().put("message", "success");
+		} catch (Exception e) {
+			e.printStackTrace();
+			view.getModel().put("message", "error");
+		}
+		return view;
+
+	}
+
+	@RequestMapping("/delete")
+	public ModelAndView deleteHoliday(String ids, HttpServletResponse response,
+			HttpServletRequest request) throws Exception {
+		ModelAndView view = new ModelAndView();
+		String[] holidayIds =  ProcessSignUtils.getInstance().processComma(ids);		
+		for (String id : holidayIds) {
+			tmsService.removeHoliday(id);
+		}
+		return view;
+	}
+}

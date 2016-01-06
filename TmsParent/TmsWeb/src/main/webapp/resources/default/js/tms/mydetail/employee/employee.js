@@ -1,0 +1,404 @@
+
+
+var employee = {
+		sort: function(){
+			$("#employee-table-sort").dataTable({
+				bAutoWidth : true,
+				bStateSave : true,
+				dom: 'C<"clear">lfrtip',
+				columnDefs: [
+					{orderable:false,targets:[0,18]},
+					{visible: false, targets: [9,11,12,13,14,15,17]}
+				],
+				colVis: {
+					exclude: [ 0,1,2,3,4,5,6,7,8,9,10,16 ],
+		            showAll: "Show all"
+				}
+			
+		    });
+		},
+		
+		loademployee: function(){
+			PageCtrl.load({
+				url : webPath + "/employee/list_nd",
+				dom : "employee-content",
+				param :  $("#searchEmployeeForm").serialize(),
+				callback : function() {
+					employee.sort();
+					employee.display();
+					Loading.stop();
+					
+				}
+			});
+		},
+		create : function(departmentId) {
+			
+			window.location.href = webPath + '/employee/create';
+			
+			/*$.layer({
+                type: 1,
+                title : "Create a new employee",
+                shadeClose: true,
+                area : [ '850px', '480px' ],
+                offset : [ '100px', '' ],
+                page: {
+                	url : webPath + '/employee/create?pjax=true&flag=employee&departmentId='+departmentId
+                },
+                zIndex:2500
+            });*/
+			
+		},
+		createleave: function(employeeId) {
+			$.layer({
+                type: 1,
+                title : "Create a new leave",
+                shadeClose: true,
+                area : [ '525px', '480px' ],
+                offset : [ '80px', '' ],
+                page: {
+                	url : webPath + '/leave/createEmployee?pjax=true&employeeId='+employeeId
+                },
+                zIndex:2500
+            });
+			
+		},
+		leaves: function(id) {
+			window.location.href = webPath + '/leave/list?employeeId='+id;
+			
+		},
+		paycard: function(id) {
+			window.location.href = webPath + '/paycard/list?employeeId='+id;
+		},
+		update : function(id){
+			window.location.href = webPath + '/employee/update?id='+id;
+			
+			/*$.layer({
+                type: 1,
+                title : "Modify an employee",
+                shadeClose: true,
+                area : [ '850px', '480px' ],
+                offset : [ '100px', '' ],
+                page: {
+                	url : webPath + '/employee/update?pjax=true&flag=employee&id=' + id
+                },
+                zIndex:2500
+            });*/
+			
+		},
+		updateStatus : function(id){
+			$.layer({
+                type: 1,
+                title : "Modify Employee Status",
+                shadeClose: true,
+                area : [ '400px', '160px' ],
+                offset : [ '100px', '' ],
+                page: {
+                	url : webPath + '/employee/updateStatus?pjax=true&id=' + id
+                },
+                zIndex:2500
+            });
+			
+		},
+		search:function(){
+			Loading.start();
+			employee.loademployee();
+			$("#searchEmployee").dropdown('toggle');		
+		},
+		save : function(form,iscontinue){
+			if($("#hireOnDateValue").val()!=""&&$("#terminateDate").val()!=""){
+				if(!employee.checkdate($("#hireOnDateValue").val(),$("#terminateDate").val())){
+					argusAlertStrip("alertMessage","warning"," Warning: Hire On no less than or equal to Terminate Date");
+					return false;
+				}
+			}
+			if ($("#alertMessage").html()!="")
+        		$("#alertMessage").html("")
+        	
+			$(form).attr('action', webPath + "/employee/save");
+			formTool.submitForm($(form),function(data){
+				Loading.stop();
+				if (data.message=="success"){					
+					argusAlertStrip("alertMessage","success"," Success");
+					if(iscontinue){
+						employee.create();
+					}else{	
+						if("company"==S_FLAG){							
+							employee.updateAfter();														
+												
+						}else{
+						employee.backList();	
+						}
+						
+					}
+				}else if (data.message == "userEmailExit"){
+					argusAlertStrip("alertMessage","warning"," Warning: Email is exist.");
+				}else if(data.message == "photoBigError") {
+					argusAlertStrip("alertMessage","warning"," Warning: The photo is too large");
+				}else if(data.message == "employeeNumerExit") {
+					argusAlertStrip("alertMessage","warning"," Warning:  Employee ID or ClockId is exist.");
+				}else if(data.message == "noCompany") {
+					argusAlertStrip("alertMessage","warning"," Warning:  The company does not exist.");
+				}
+				else{
+					argusAlertStrip("alertMessage","error"," Error");
+				}
+			});
+			
+			return false;
+		},
+		remove : function (id) {
+			if(typeof(id)=="undefined"){
+				id="";
+				$('input[name="id"]:checked').each(function(){
+					id+=$(this).val()+",";
+			    });
+			}
+			if(!id){
+				argusAlertStrip("alertMessage","warning"," Warning:  Please select at least one.");
+				return false;
+			}
+			argusConfirm("Confirm delete?",function(result){
+				if(result){
+					Loading.start();
+					PageCtrl.ajax({
+						url : webPath + "/employee/delete?ids="+id,
+						type : "post",
+						dataType: "json",
+						success : function(data) {
+							Loading.stop();
+							if (data.message=="success"){					
+								employee.backList();
+							}else{
+								argusAlertStrip("alertMessage","error"," Error");
+							}
+						}
+					});
+				}
+			});
+		},
+		initSavePage : function(){
+
+			$('#employeeForm').validate({
+				ignore : "",
+				doNotHideMessage : true, //this option enables to show the error/success messages on tab switch.
+				errorElement : 'span', //default input error message container
+				errorClass : 'validate-inline', // default input error message class
+				focusInvalid : false, // do not focus the last invalid input
+				rules : {
+					"email" : {
+						required : true,
+						email	 : true
+					},
+					"jobNumber" : {
+						required : true
+					},
+					"firstName" : {
+						required : true
+					},
+					"lastName" : {
+						required : true					
+					},
+					"password" : {
+						required : "#changePassword:checked"
+					},
+					"confirm_password" : {
+						required : "#changePassword:checked",
+						equalTo: "#password"
+					},
+					"hireOnDateValue" : {
+						required : true
+					},
+					"terminateDateValue" : {
+						required : true
+					},
+					"departmentId" : {
+						required : true
+					},
+					"clockId" : {
+						required : true,
+						number : true,
+						min : 1
+					},
+					"paygroupId" : {
+						required : true
+					},
+					"payId" : {
+						required : true
+					}
+				},
+
+
+		        errorPlacement: function (error, element) { // render error placement for each input type
+		            error.insertAfter(element); // for other inputs, just perform default behavoir
+//		            if (element.attr("name") != "jobNumber"&&element.attr("name") != "firstName"&&element.attr("name") != "lastName"
+//		            	&&element.attr("name") != "hireOnDate"&&element.attr("name") != "departmentId"){
+//		            	$("#tab3").click();
+//		            } 
+		            
+		            if (element.attr("name") == "departmentId") {
+		            	$("#departmentId-controls div a").attr("style","border-color: #b94a48 !important");
+		            }
+		            if (element.attr("name") == "paygroupId") {
+		            	$("#paygroupId-controls div a").attr("style","border-color: #b94a48 !important");
+		            }
+		        },
+
+		        invalidHandler: function (event, validator) { //display error alert on form submit   
+		        	Loading.stop();
+		        	
+		        },
+
+		        highlight: function (element) { // hightlight error inputs
+		            $(element).closest('.help-inline').removeClass('ok'); // display OK icon
+		            $(element).closest('.control-group').removeClass('success').addClass('error'); // set error class to the control group
+		        },
+
+		        unhighlight: function (element) { // revert the change dony by hightlight
+		            $(element).closest('.control-group').removeClass('error'); // set error class to the control group
+		            if ($(element).attr("name") == "departmentId") {
+		            	$("#departmentId-controls div a").attr("style","");
+		            }
+		            if ($(element).attr("name") == "paygroupId") {
+		            	$("#paygroupId-controls div a").attr("style","");
+		            }
+		        },
+
+		        success: function (label) {
+		            label.addClass('valid').closest('.control-group').removeClass('error'); // set success class to the control group
+		            label.remove();
+		            
+		        },
+		        
+		        submitHandler: function(form){  
+		        	employee.save(form,false);
+		        },
+		        onfocusin: function( element, event ) {
+		        	if ($("#alertMessage").html()!="")
+		        		$("#alertMessage").html("")
+		        }
+			});
+			
+			
+			$("#timeRoundingId").select2({
+				placeholder : "Select an option",
+				allowClear : true
+			});
+			$("#jobId").select2({
+				placeholder : "Select an option",
+				allowClear : true
+			});
+/*			$("#positionId").select2({
+				placeholder : "Select an option",
+				allowClear : true
+			});*/
+			$("#paygroupId").select2({
+				placeholder : "Select an option",
+				allowClear : true
+			});
+			
+			
+			$("#hireOnDatetime").datetimepicker({
+				pickTime: false,
+				format: "yyyy-MM-dd",
+				pickerPosition : "left"
+			});
+			
+			$("#terminateDatetime").datetimepicker({
+				pickTime: false,
+				format: "yyyy-MM-dd",
+				pickerPosition : "left"
+			});
+			fileinput();
+		},
+		initFunction : true,
+		isSupervisor : function(){
+			if ($("#isSupervisor").attr("checked") == "checked"){
+				$("#managementControlGroup").slideDown("fast");
+				$("#funControlGroup").slideDown("fast");
+				if (this.initFunction){
+					$('#funs').multiselect({
+						  checkAllText: 'All',
+					      uncheckAllText: 'Uncheck',
+					      noneSelectedText: "Please select",//'请选择节点'
+					      selectedText: "# selected",//'已经选中 # 个节点'
+					      classes:"",
+					      minWidth:"300px;"
+//					      position: {
+//					          my: 'left bottom',
+//					          at: 'left top'
+//					       }
+		 
+					 }).multiselectfilter({
+						  label: "Search",//'搜索:'
+					      width: "90",  //override default width set in css file (px). null will inherit 
+					      placeholder: '',
+					      autoReset: true
+						 
+					 });
+					this.initFunction = false;
+				}
+				
+				
+			}else{
+				$("#managementControlGroup").fadeOut("fast");
+				$("#funControlGroup").fadeOut("fast");
+			}
+			
+			
+		},
+		saveAndContinue:function(){
+			employee.save($("#employeeForm"),true);
+		},
+		backList: function(){
+			document.location.href = webPath + '/employee/list';
+		},
+		/*
+		 *  company中修改employee
+		 */
+		updateAfter:function(){				
+			Loading.stop();
+			window.opener.employeeSearch.loademployee();
+			window.close();	
+		},
+		changePassword : function(){
+			if ($("#changePassword").attr("checked") == "checked"){
+				$("#changePassword").val(true);
+				$(".pw-div").slideDown("fast");		
+			}else{
+				$("#changePassword").val(false);
+//				$("＃password").val("");	
+				$(".pw-div").fadeOut("fast");
+			}
+			
+		},
+		checkdate: function(startDate,endDate){   
+			var sDate = new Date(startDate.replace('//-/g', '//'));
+			var eDate = new Date(endDate.replace('//-/g', "//"));
+			if(sDate < eDate){
+				return true;
+			}
+			return false;
+		},
+		switchdisplay:function(){
+			var display=$.cookie('tmsEmployeeDisplay');
+			if(display=='list'){
+				$.cookie('tmsEmployeeDisplay', 'table', { expires:60, path: '/' });
+			}else{
+				$.cookie('tmsEmployeeDisplay', 'list', { expires:60, path: '/' });
+			}
+			employee.display();
+		},
+		display:function(){
+			var display=$.cookie('tmsEmployeeDisplay');
+			if(display=="table"){
+				$("#employee_delete_list").hide();
+				$("#employee-list").hide();
+				$("#employee-table").show();
+			}else{
+				$("#employee_delete_list").show();
+				$("#employee-list").show();
+				$("#employee-table").hide();
+			}
+		}
+		
+};

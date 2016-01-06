@@ -1,0 +1,160 @@
+package com.tms.controller.settings;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tms.controller.base.BaseController;
+import com.tms.entity.User;
+import com.tms.entity.tms.TimeRounding;
+import com.tms.entity.tms.TimeRoundingRule;
+import com.tms.service.tms.TMSService;
+import com.tms.utils.ProcessSignUtils;
+import com.tms.utils.SessionUtils;
+import com.tms.vo.RoundingRuleVo;
+import com.tms.vo.RoundingVo;
+
+@Controller
+@RequestMapping("/roundingrules")
+
+public class TimeRoundingController extends BaseController<Object> {
+	
+		@Autowired
+		private TMSService tmsService;
+	
+		@RequestMapping("/list")
+	    public ModelAndView timeRoundingList(HttpServletResponse response, HttpServletRequest request)
+	            throws Exception {
+	    	ModelAndView view = timeRoundingListValue(response, request);
+	    	view.setViewName("tms/timerounding/timeroundinglist");
+	        return view;
+	    }
+	 	@RequestMapping("/list_nd")
+		public ModelAndView timeRoundingListValue(HttpServletResponse response, HttpServletRequest request)
+				throws Exception {
+			ModelAndView view = new ModelAndView();
+			User user = SessionUtils.getUser(request);
+			List<TimeRounding> timeRoundings = tmsService.findAllTimeRoundingsByCompanyId(user.getCompany().getId());
+			view.getModelMap().put("timeroundings", timeRoundings);
+			view.setViewName("tms/timerounding/timeroundinglisttable");
+			return view;
+		}
+
+	 	@RequestMapping("/create")
+		public ModelAndView createTimerounding(HttpServletResponse response, HttpServletRequest request) throws Exception {
+			ModelAndView view = new ModelAndView();
+			view.setViewName("tms/timerounding/savetimerounding");
+			return view;
+		}
+	 
+	 	@RequestMapping("/update")
+		public ModelAndView updateTimerounding(String id, HttpServletResponse response, HttpServletRequest request)
+				throws Exception {
+			ModelAndView view = new ModelAndView();
+	 		TimeRounding timerounding = tmsService.findTimeRoundingbyId(id);
+			view.getModel().put("timerounding", timerounding);
+			view.setViewName("tms/timerounding/savetimerounding");
+			return view;
+		}
+	 
+	 	@RequestMapping("/save")
+		public ModelAndView saveTimeRounding(@RequestBody RoundingVo roundingVo, HttpServletResponse response, HttpServletRequest request)
+				throws Exception {			
+			ModelAndView view = new ModelAndView();
+				TimeRounding timeRounding = new TimeRounding();
+				TimeRounding tmp = new TimeRounding(); 				
+				if (StringUtils.isNotEmpty(roundingVo.getId())){
+					timeRounding =  tmsService.findTimeRoundingbyId(roundingVo.getId());
+					tmp.setCode(timeRounding.getCode());
+					tmp.setName(timeRounding.getName());
+				} else {
+					timeRounding.setId(roundingVo.getId());
+				}
+				timeRounding.setActive(roundingVo.isActive());
+				timeRounding.setCode(roundingVo.getCode());
+				timeRounding.setDescription(roundingVo.getDescription());
+				timeRounding.setName(roundingVo.getName());
+				
+				try{
+					User user = SessionUtils.getUser(request);
+					timeRounding.setCompany(user.getCompany());
+				
+				Set<TimeRoundingRule> rules = new HashSet<>();
+				if(roundingVo.getRules()!=null){
+					for (RoundingRuleVo vo : roundingVo.getRules()){
+						TimeRoundingRule rule = new TimeRoundingRule();
+						rule.setOrderNumber(vo.getOrderNumber());
+						rule.setFromTime(vo.getFromTime());
+						rule.setToT(vo.getToT());
+						rule.setValue(vo.getValue());
+						rules.add(rule);
+						rule.setTimeRounding(timeRounding);
+					}
+				}
+				timeRounding.getRules().clear();
+				timeRounding.getRules().addAll(rules);		
+					
+				if (StringUtils.isEmpty(timeRounding.getId())) {
+					if (tmsService.validateTimeRoundingCodeNameExist(timeRounding.getCode(), timeRounding.getName(), user.getCompany().getId())) {
+						view.getModel().put("message", "exist");
+						return view;
+					} else {
+						tmsService.saveTimeRounding(timeRounding);
+					}
+				} else {			
+					String code = null;
+					String name = null;
+					if (tmp.getCode().equals(timeRounding.getCode()) && tmp.getName().equals(timeRounding.getName())){
+						tmsService.updateTimeRounding(timeRounding);
+					}else {
+						if (!tmp.getCode().equals(timeRounding.getCode())){
+							code = timeRounding.getCode();
+						}
+						if (!tmp.getName().equals(timeRounding.getName())){
+							name = timeRounding.getName();
+						}
+						if (tmsService.validateTimeRoundingCodeNameExist(code, name, user.getCompany().getId())) {
+							view.getModel().put("message", "exist");
+							return view;
+						} else {
+							tmsService.updateTimeRounding(timeRounding);
+						}
+					}
+					
+				}			
+				view.getModel().put("message", "success");
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				view.getModel().put("message", "error");
+			}
+			
+			
+			return view;
+			
+		}
+	 
+	@RequestMapping("/delete")
+	public ModelAndView deleteTimeRounding(String ids,
+			HttpServletResponse response, HttpServletRequest request)
+			throws Exception {
+		ModelAndView view = new ModelAndView();
+		String[] timeroundingIds = ProcessSignUtils.getInstance().processComma(
+				ids);
+		for (String id : timeroundingIds) {
+			tmsService.removeTimeRounding(id);
+		}
+		return view;
+	}
+	 
+}
