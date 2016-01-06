@@ -1,0 +1,249 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="webpath" uri="/WEB-INF/tlds/path.tld"%>
+<style>
+		#calendar {
+		max-width: 500px;
+		margin: 0 auto;
+		}
+	</style>
+<head>
+	<link href="<webpath:path/>/resources/default/css/error.css" media="all" rel="stylesheet" type="text/css" />
+	<script src="<webpath:path/>/resources/default/js/tms/tmssetting/schedule.js" type="text/javascript"></script>
+</head>
+<div class='row-fluid'>
+	<div class='span12'>
+		<div class='page-header'>
+			<div class='pull-left title'>
+			<c:if test="${schedule.id==null}">
+				<span><fmt:message key="savecustomer.info.createcustomer" /></span>	
+			</c:if>
+			<c:if test="${schedule.id!=null}">
+				<span><fmt:message key="savecustomer.info.modifycustomer" /></span>						
+			</c:if>
+			</div>
+		</div>
+	</div>
+</div>
+	<form id="scheduleForm" action='#' onsubmit="return false;" class="form form-horizontal form-left2" style="margin-bottom: 0;" method="post" accept-charset="UTF-8">
+	<input class="span12" name="id" type="hidden" id="id" value="${schedule.id}"/>
+	<div id="alertMessage"></div>
+	<div class='row-fluid' >
+		<div class='span4' >
+			<div class="portlet box green">
+				<div class="portlet-title">
+					<div class="caption"><i class="icon-briefcase"></i>Schedule Info</div>
+				</div>
+			<div class="portlet-body">
+					<div class='row-fluid'>
+						<div class='span12 box'>
+							<div class="control-group">
+				<label class="control-label"><font color="red">*</font> <span><fmt:message
+							key="saveschedule.info.code" /> <!--Code:--></span>
+				</label>
+				<div class="controls">
+					<input class="span12" name="code" type="text" id="code" <c:if test="${schedule.id!=null}">readonly</c:if>  value="${schedule.code}" maxlength="3" />
+
+				</div>
+			</div>
+
+			<div class="control-group">
+				<label class="control-label"><font color="red">*</font> <span><fmt:message
+							key="saveschedule.info.name" /> <!--Name:--></span></label>
+				<div class="controls">
+					<input class="span12" name="name" type="text" id="name"
+						value="${schedule.name}" maxlength="40" />
+				</div>
+			</div>
+			
+			<div class="control-group">
+					<label class="control-label">
+					<span><fmt:message key="saveschedule.info.status" /></span>
+					</label>
+					<div class="controls">
+						<label class="span12 checkbox inline"> 	
+						<c:if test="${schedule.id==null}">						
+					    <input type="checkbox" id="active" name="active"  value="true" checked disabled>
+					    </c:if>
+					    <c:if test="${schedule.id!=null}">
+								<input type="checkbox" name="active"  id="active" value="true"
+									<c:if test="${schedule.active}">checked</c:if>>
+							</c:if> 	
+							<span><fmt:message key="global.info.active" /></span>
+						   </label>
+						
+					</div>
+				</div>
+			
+			<div class='row-fluid'>
+			<div class="control-group">
+					<label class="control-label"> <span><fmt:message key="saveschedule.info.diffperiod" /></span></label>
+					<div class="controls">
+				<select id="diffPeriod" name="diffPeriod" class="span12" data-placeholder=" " tabindex="1" onchange="schedule.periodMatch()">
+							<option value=""></option>
+							<c:forEach var="diffPeriod" items="${schedules}">					
+								<option value="${diffPeriod.id}" <c:if test="${diffPeriod.id==scheduleID}">selected</c:if>>${diffPeriod.name}</option>						
+							</c:forEach>
+						</select>
+				
+				</div>
+				</div>
+				</div>
+				
+			<!--<div class="control-group">
+				<label class="control-label"> <span><fmt:message
+							key="saveschedule.info.periodoffset" /></span>
+				</label>
+				<div class="controls">
+				<c:if test="${schedule.id==null}">	
+					<input class="span12" name="periodOffset" type="text" id="periodOffset" value="${schedule.periodOffset}" disabled/>
+                </c:if>
+                <c:if test="${schedule.id!=null}">	
+                 <c:if test="${schedule.diffPeriod==''}">
+                <input class="span12" name="periodOffset" type="text" id="periodOffset" value="${schedule.periodOffset}" disabled/>
+                </c:if>
+                 <c:if test="${schedule.diffPeriod!=''}">
+                  <input class="span12" name="periodOffset" type="text" id="periodOffset" value="${schedule.periodOffset}"/>
+                  </c:if>
+                </c:if>
+				
+				</div>
+			</div>  -->		
+			
+			
+				<div class="control-group">
+					<label class="control-label"> <span><fmt:message key="saveschedule.info.periodtype" /></span></label>
+					<div class="controls">				
+						<select id="periodType" name="schedulePeriod" class="span12" data-placeholder=" " tabindex="1" onchange="schedule.onChangePeriod()" >
+							<c:forEach var="periodType" items="${ptype}">									
+								<option value="${periodType}" <c:if test="${periodType==schedule.schedulePeriod}">selected</c:if>>${periodType}</option>
+							</c:forEach>
+						</select>
+					</div>
+				</div>
+						
+			
+			<div class="control-group">
+				<label class="control-label"> <span><fmt:message key="saveschedule.info.periods" /></span>
+				</label>
+				<div class="controls">
+					<input class="span12" name="period" type="text" id="period" value="${schedule.period}" readonly/>
+				</div>
+			</div>	
+			
+			<div class="control-group">
+				<label class="control-label"> <span><fmt:message key="saveschedule.info.daysperperiod" /></span>
+				</label>
+				<div class="controls">
+					<input class="span12" name="days" type="text" id="days" value="${schedule.days}" readonly/>
+				</div>
+			</div>	
+			
+			<div class="control-group">
+					<label class="control-label"><font color="red">*</font> 
+					<span><fmt:message key="saveschedule.info.startdate" /></span></label>
+					<div class="controls input-append date" id="startTime"  style="display: block;">
+						<input class="" name="startDate" type="text" id="startDate" style="width:208px;" value="<fmt:formatDate value="${schedule.startDate}" type="date" pattern="yyyy-MM-dd"/>" readonly/>
+						<span class='add-on' style="cursor: pointer;">
+				           <i class='icon-calendar'></i>
+				        </span>			
+					</div>
+				</div>
+			
+			<div class="control-group">
+					<label class="control-label">
+					<span><fmt:message key="saveschedule.info.attribute" /></span>
+					</label>
+					<div class="controls">
+						<label class="span12 checkbox inline"> 	
+								<input type="checkbox" id="attribute" name="attribute"
+									<c:if test="${schedule.attribute}">checked</c:if>>
+							<span><fmt:message key="saveschedule.info.workonholiday" /></span>
+						   </label>
+						
+					</div>
+				</div>
+						</div>
+					</div>
+			</div>
+			</div>
+		</div>
+		<div class='span8'>
+		<div class="portlet box green">
+				<div class="portlet-title">
+					<div class="caption"><i class="icon-time"></i>Schedule Template</div>
+				</div>
+				<div class="portlet-body">
+					<div class='row-fluid'>
+						<div class='span12 box'>
+						<div id='calendar'></div>
+						</div>
+					</div>
+				</div>
+		</div>
+	</div>
+	</div>	 
+	<hr class="hr-normal"> 	
+	<div class="row-fluid text-center" id="savebutton">
+		<c:if test="${schedule.id==null}">
+		<button class="btn btn-warning " id="keepon" type="button" onclick="schedule.saveAndContinue()">
+			<i class="icon-save"></i> Save and continue to create
+		</button>
+		</c:if>
+		<button class="btn btn-warning " type="submit">
+			<i class="icon-save"></i> <fmt:message key="global.info.save" /><!--Save-->
+		</button>
+		
+		<button class="btn btn-warning" onclick="schedule.backList()" type="button">
+			<i class="icon-circle-arrow-left "></i>
+			Back
+		</button>
+	</div>
+</form>
+<script>
+	$(document).ready(function(){
+		schedule.initSavePage();
+		var custom=$("#periodType").val();
+		if(custom="Custom"){
+			$("#period").attr("readonly",false);	
+			$("#days").attr("readonly",false);	
+		}
+		
+		$('#calendar').fullCalendar({
+			header: {
+				center: 'Forthnight',
+				right: 'agendaBiWeek'
+			},
+			
+			defaultDate: '2015-02-12',
+			businessHours: true, // display business hours
+			editable: true,
+			defaultView: 'agendaWeek',
+			events: [
+				{
+					title: 'Business Lunch',
+					start: '2015-02-03T13:00:00',
+					constraint: 'businessHours',
+					editable: true
+				},
+				{
+					title: 'Meeting',
+					start: '2015-02-13T11:00:00',
+					color: '#257e4a'
+				},
+				{
+					title: 'Conference',
+					start: '2015-02-18',
+					end: '2015-02-20'
+				},
+				{
+					title: 'Party',
+					start: '2015-02-29T20:00:00'
+				}
+
+			]
+		});
+	});
+	</script>

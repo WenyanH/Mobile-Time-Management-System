@@ -1,0 +1,179 @@
+package com.tms.controller.customer;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tms.conditions.UserConditions;
+import com.tms.constant.Constants;
+import com.tms.controller.base.BaseController;
+import com.tms.entity.Role;
+import com.tms.entity.User;
+import com.tms.entity.UserSource;
+import com.tms.entity.UserStatus;
+import com.tms.service.role.RoleService;
+import com.tms.service.user.UserService;
+import com.tms.utils.MD5;
+import com.tms.utils.ProcessSignUtils;
+import com.tms.vo.UserVo;
+
+@Controller
+@RequestMapping("/staff")
+public class StaffController extends BaseController<Object> {
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private RoleService roleService;
+	
+	@RequestMapping("/list")
+	public ModelAndView userList(UserConditions condition, HttpServletResponse response, HttpServletRequest request) throws Exception {
+		ModelAndView view = new ModelAndView();
+		List<User> users = userService.findUserByRole(Constants.SUPERADMIN);
+		if (CollectionUtils.isNotEmpty(users)) {
+			List<UserVo> userVos = new ArrayList<UserVo>();
+			for (User tempUser : users) {
+				userVos.add(new UserVo(tempUser));
+			}
+			view.getModelMap().put("users", userVos);
+		}
+		view.setViewName("admin/staff/stafflist");
+		return view;
+	}
+	@RequestMapping("/list_nd")
+	public ModelAndView userListValue(UserConditions condition, HttpServletResponse response, HttpServletRequest request) throws Exception {
+		ModelAndView view = new ModelAndView();
+		List<User> users = userService.findUserByRole(Constants.SUPERADMIN);
+		if (CollectionUtils.isNotEmpty(users)) {
+			List<UserVo> userVos = new ArrayList<UserVo>();
+			for (User tempUser : users) {
+				userVos.add(new UserVo(tempUser));
+			}
+			view.getModelMap().put("users", userVos);
+		}
+		view.setViewName("admin/staff/stafflisttable");
+		return view;
+	}
+	/**
+	 * 打开SUPERADMIN-USER创建页面
+	 * 
+	 * @param response
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/create")
+	public ModelAndView createUser(HttpServletResponse response, HttpServletRequest request) throws Exception {
+		ModelAndView view = new ModelAndView();
+
+		List<String> userStatuses = new ArrayList<String>();
+		for (UserStatus userStatus : UserStatus.values()) {
+			userStatuses.add(userStatus.name);
+		}
+		view.getModelMap().put("userStatus", userStatuses);
+		
+		view.setViewName("admin/staff/savestaff");
+		return view;
+	}
+	@RequestMapping("/update")
+	public ModelAndView updateUser(String id, HttpServletResponse response, HttpServletRequest request) throws Exception {
+		ModelAndView view = new ModelAndView();
+		List<String> userStatuses = new ArrayList<String>();
+		for (UserStatus userStatus : UserStatus.values()) {
+			userStatuses.add(userStatus.name);
+		}
+		view.getModelMap().put("userStatus", userStatuses);
+		User user = userService.findByUId(id);
+		view.getModel().put("user", user);
+
+		view.setViewName("admin/staff/savestaff");
+		return view;
+	}
+	@RequestMapping("/save")
+	public ModelAndView saveUser(UserVo userVo, HttpServletResponse response,
+			HttpServletRequest request) throws Exception {
+		ModelAndView view = new ModelAndView();
+		Boolean userIsExist = userService.validateEmailExist(userVo.getEmail());
+		User user = new User();
+		if (StringUtils.isEmpty(userVo.getId())) {
+			if (userIsExist) {
+				view.getModel().put("message", "userEmailExit");
+				return view;
+			}
+		} else {
+			user = userService.findByUId(userVo.getId());
+			if (!user.getEmail().equals(userVo.getEmail()) && userIsExist) {
+				view.getModel().put("message", "userEmailExit");
+				return view;
+			}
+		}
+
+		user.setEmail(userVo.getEmail());
+		if(StringUtils.isNotEmpty(userVo.getStatus())){
+			user.setStatus(UserStatus.valueOf(userVo.getStatus()));
+		}
+		try {
+			Set<Role> roleSets = new HashSet<Role>();
+			List<Role> roles = roleService.findAll();
+			if(roles!=null){
+				for(Role role:roles){
+					if(role.getName().equals(Constants.SUPERADMIN)){
+						roleSets.add(role);
+						user.setRoles(roleSets);
+					}
+				}
+			}
+			if (StringUtils.isEmpty(user.getId())) {
+				user.setPassword(MD5.digest(userVo.getPassword()));//新建时密码必填项
+				user.setCreateTime(new Date());
+				user.setSys(false);
+				user.setSource(UserSource.User);
+				userService.save(user);
+			} else {
+				if(userVo.getChangePassword()!=null&&userVo.getChangePassword()){//编辑时需要判断PASSWROD是否选中修改
+					user.setPassword(MD5.digest(userVo.getPassword()));
+				}
+				user.getEmployee().clear();
+				user.setSource(UserSource.User);
+				userService.update(user);
+			}
+			view.getModel().put("message", "success");
+		} catch (Exception e) {
+			e.printStackTrace();
+			view.getModel().put("message", "error");
+		}
+		return view;
+	}
+	
+	@RequestMapping("/delete")
+	public ModelAndView deleteUser(String ids, HttpServletResponse response, HttpServletRequest request) throws Exception {
+		ModelAndView view = new ModelAndView();
+		if(StringUtils.isEmpty(ids)){
+			view.getModel().put("message", "error");
+			return view;
+		}
+		//分割以","号连接的字符串成字符串数组
+		String[] userIds = ProcessSignUtils.getInstance().processComma(ids);		
+		for (String id : userIds) {
+			User user=userService.findByUId(id);
+			if(user!=null){
+				if(!user.isSys()){//删除非系统用户
+					userService.remove(user.getId());
+				}
+			}
+		}
+		view.getModel().put("message", "success");
+		return view;
+	}
+}

@@ -1,0 +1,1 @@
+insert  into `role`(`id`,`descr`,`name`) values ('1','superadmin','superadmin'),('2','admin','admin'),('3','supervisor','supervisor'),('4','payroll','payroll');

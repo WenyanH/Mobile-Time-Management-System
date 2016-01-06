@@ -1,0 +1,280 @@
+package com.tms.entity;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tms.entity.tms.Job;
+import com.tms.entity.tms.PayGroup;
+import com.tms.entity.tms.Position;
+import com.tms.entity.tms.TimeRounding;
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class Department {
+	
+	
+	@Id
+	@GenericGenerator(name = "systemUUID", strategy = "uuid2")
+	@GeneratedValue(generator = "systemUUID")
+	private String id;
+
+	private String number;
+	// 部门名称
+	private String departmentName;
+
+	private boolean status = true;
+	
+	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "department")
+	@JsonIgnore
+	private Set<Employee> employee = new HashSet<>();
+
+	@ManyToOne
+	private Department parent;
+
+	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE }, mappedBy = "parent")
+	@JsonIgnore
+	private Set<Department> subs = new HashSet<>();
+
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE }, mappedBy = "management")
+	@JsonIgnore
+	private Set<User> users = new HashSet<>();
+
+	@ManyToOne
+	private Company company;
+	// 实际地址
+	private String physicalAddr;
+	// 邮寄地址
+	private String postalAddr;
+	private String name;
+	private String title;
+	private String email;// 邮箱
+	private String phone;// 电话
+	private String mobile;// 手机
+	private String fax;// 传真
+
+	
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
+	@JsonIgnore
+	private Set<PayGroup> payGroup = new HashSet<>();
+	
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
+	@JsonIgnore
+	private Set<Job> job = new HashSet<>();
+	
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
+	@JsonIgnore
+	private Set<Position> position = new HashSet<>();
+	
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE })
+	@JsonIgnore
+	private Set<TimeRounding> timeRoundings = new HashSet<>();
+	
+	@ManyToOne
+	private CompanyStructure companyStructure;
+
+	private Date createTime;
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getNumber() {
+		return number;
+	}
+
+	public void setNumber(String number) {
+		this.number = number;
+	}
+
+	public String getDepartmentName() {
+		return departmentName;
+	}
+
+	public void setDepartmentName(String departmentName) {
+		this.departmentName = departmentName;
+	}
+
+	public Set<Employee> getEmployee() {
+		return employee;
+	}
+
+	public void setEmployee(Set<Employee> employee) {
+		this.employee = employee;
+	}
+
+	public Department getParent() {
+		return parent;
+	}
+
+	public void setParent(Department parent) {
+		this.parent = parent;
+	}
+
+	public Set<Department> getSubs() {
+		return subs;
+	}
+
+	public void setSubs(Set<Department> subs) {
+		this.subs = subs;
+	}
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	public String getFax() {
+		return fax;
+	}
+
+	public void setFax(String fax) {
+		this.fax = fax;
+	}
+
+	public Set<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<User> users) {
+		this.users = users;
+	}
+
+	public String getPhysicalAddr() {
+		return physicalAddr;
+	}
+
+	public void setPhysicalAddr(String physicalAddr) {
+		this.physicalAddr = physicalAddr;
+	}
+
+	public String getPostalAddr() {
+		return postalAddr;
+	}
+
+	public void setPostalAddr(String postalAddr) {
+		this.postalAddr = postalAddr;
+	}
+
+	public Set<PayGroup> getPayGroup() {
+		return payGroup;
+	}
+
+	public void setPayGroup(Set<PayGroup> payGroup) {
+		this.payGroup = payGroup;
+	}
+
+	public Set<Job> getJob() {
+		return job;
+	}
+
+	public void setJob(Set<Job> job) {
+		this.job = job;
+	}
+
+	public Set<Position> getPosition() {
+		return position;
+	}
+
+	public void setPosition(Set<Position> position) {
+		this.position = position;
+	}
+
+	public Set<TimeRounding> getTimeRoundings() {
+		return timeRoundings;
+	}
+
+	public void setTimeRoundings(Set<TimeRounding> timeRoundings) {
+		this.timeRoundings = timeRoundings;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+
+	public CompanyStructure getCompanyStructure() {
+		return companyStructure;
+	}
+
+	public void setCompanyStructure(CompanyStructure companyStructure) {
+		this.companyStructure = companyStructure;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	
+	
+}

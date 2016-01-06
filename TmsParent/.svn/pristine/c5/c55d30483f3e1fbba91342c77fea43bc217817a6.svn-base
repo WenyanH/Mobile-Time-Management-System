@@ -1,0 +1,241 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+
+<%@ taglib prefix="webpath" uri="/WEB-INF/tlds/path.tld"%>
+<%@ taglib prefix="webpage" uri="/WEB-INF/tlds/pageview.tld"%>
+
+<div id="employee-table" style="display:none">
+	<div class="row-fluid resource">
+		<div class="gallery">
+			<ul class="unstyled inline" >
+				<c:forEach var="user" items="${users}">
+				<li class="picture_li" style="padding-right:0px; padding-left:10px;width:299px">
+				    <div class="picture has-popover" data-title="${user.firstName} ${user.lastName}" data-toggle="popover"  data-placement="top"
+				     data-content='
+				     		<table>
+				     			<tr>
+				     				<td>Hire On Date:</td>
+				     				<td>${user.hireOnDateValue} </td>
+				     			</tr>
+				     			<tr>
+				     				<td>Terminate Date:</td>
+				     				<td>${user.terminateDateValue}</td>
+				     			</tr>
+				     		
+				     		</table>
+				     	
+			
+				     ' data-html="true">
+				    	<img src="<webpath:path/>/resources/default/images/blank.gif" style="width: 100%; height: 160px;"/>
+					    	
+				    	<c:if test="${user.photo==null||user.photo==''}">
+				    	<img src="<webpath:path/>/resources/default/images/user.png" class="res-icon-60" style="width: 60px;"/>
+				    	</c:if>
+				    	
+				    	<c:if test="${user.photo!=null&&user.photo!=''}">
+				    	<img src="data:image/png;base64,${user.photo}" style="width: 60px;" class="res-icon-60"/>
+				    	</c:if>
+				    	
+				    	<div class="contents">
+				    		<div class="title">	
+				    			<span title="${user.firstName} ${user.lastName}">${user.firstName} ${user.lastName}</span>
+				    		</div>
+				    		<div class="desc row-fluid">
+				    			<div class="span9" style="">
+									<div class="row-fluid">
+										<small> 
+											<i class="icon-envelope-alt "></i> ${user.email}
+										</small>
+									</div>
+									<div class="row-fluid">
+										<small> 
+											<i class="icon-tag"></i> ${user.departmentName}
+										</small>
+									</div>
+								</div>
+				    		</div>
+				    	</div>
+					    	
+				        <div class="tags">
+				        	
+				            <div class="label label-success">${user.jobNumber}</div>
+				            <%-- <div class="label label-warning ">${user.roleName}</div> --%>
+				            <c:if test="${user.isSupervisor}">
+				            <div class="label label-info">Is Supervisor</div>
+				            </c:if>
+				            <c:if test="${user.isExport}">
+				            <div class="label label-info">Is Export</div>
+				            </c:if>
+				          
+							<c:if test="${user.status=='Active'}">
+							<span class="label label-success">${user.status}</span>
+							</c:if>
+							<c:if test="${user.status=='Closed'}">
+							<span class="label label-important">${user.status}</span>
+							</c:if>
+							<c:if test="${user.status=='Inactive'}">
+							<span class="label label-warning">${user.status}</span>
+							</c:if>
+				        </div>
+				        
+				        <div class="actions">
+				            <div class="text-center">
+				            	
+				            	
+				            	<a class="btn btn-link" onclick="employee.updateStatus('${user.employeeId}')">
+				                    <i class=" icon-lightbulb "></i>
+				                    Status
+				                </a>
+					            
+				                <a class="btn btn-link" onclick="employee.update('${user.employeeId}')">
+				                    <i class="icon-edit "></i>
+				                    Edit
+				                </a>
+				                <a class="btn btn-link" onclick="employee.remove('${user.employeeId}')">
+				                    <i class="icon-trash"></i>
+				                    Remove
+				                </a>
+				            </div>
+				        </div>
+				        
+				       
+				    </div>
+				</li>
+				</c:forEach>  
+			</ul>
+		</div>
+	</div>
+</div>
+<div id="employee-list" style="display:none">
+	<div class="row-fluid">
+		<div style="margin-bottom: 0;"
+			class="span12 box bordered-box green-border">
+
+			<div class="box-content box-no-padding">
+				<div class="responsive-table">
+					<div class="scrollable-area">
+						<table id="employee-table-sort"  style="margin-bottom: 0;"
+							class="table table-bordered table-hover table-striped">
+							<thead>
+								<tr class="green-background">
+									<th width="20" class="selected dataCheck"><input type="checkbox" class="checkall"/></th>
+									<th width="">
+									<span><fmt:message key="employeelist.info.no" /><!--No.--></span></th>
+									<th width="">
+									<span><fmt:message key="employeelist.info.firstname" /><!--First Name--></span></th>									
+									<th width="">
+									<span><fmt:message key="employeelist.info.lastname" /><!--Last Name--></span></th>
+									<th width="">
+									<span><fmt:message key="employeelist.info.middlename" /><!--Middle Name--></span></th>									
+									<th width="">
+									<span><fmt:message key="employeelist.info.department" /><!--Department--></span></th>
+									
+									<th width="">
+									<span><fmt:message key="employeelist.info.hireondate" /><!--Hire On Date--></span></th>
+									<th width="">
+									<span><fmt:message key="employeelist.info.terminatedate" /><!--Terminate Date--></span></th>
+									<th width="">
+									<span><fmt:message key="global.info.status" /><!--Status--></span></th>			
+									<th width="">
+									<span><fmt:message key="employeelist.info.issupervisor" /><!--Is Supervisor--></span></th>
+									<th width="">
+									<span><fmt:message key="employeelist.info.isexport" /><!--Is Export--></span></th>			
+									<th width="">
+									<span><fmt:message key="employeelist.info.mobile" /><!--Mobile--></span></th>			
+									<th width="">
+									<span><fmt:message key="employeelist.info.phone" /><!--Phone--></span></th>			
+									<th width="">
+									<span><fmt:message key="employeelist.info.fax" /><!--Fax--></span></th>	
+									<th width="">
+									<span><fmt:message key="employeelist.info.clockid" /><!--Clock ID--></span></th>	
+									<th width="">
+									<span><fmt:message key="employeelist.info.payid" /><!--Pay ID--></span></th>	
+									<th width="">
+									<span><fmt:message key="employeelist.info.paygroup" /><!--Pay Group--></span></th>	
+									<th width="">
+									<span><fmt:message key="employeelist.info.timerounding" /><!--Time Rounding--></span></th>			
+									<th width="120"><fmt:message key="global.info.operation" /><!-- Operation --> 
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+							<c:forEach var="user" items="${users}">
+								<tr>
+									<td><input type="checkbox" name="id" value="${user.employeeId}" /></td>
+									<td>${user.jobNumber}&nbsp;</td>
+									<td>${user.firstName}&nbsp;</td>	
+									<td>${user.lastName}&nbsp;</td>
+									<td>${user.middleName}&nbsp;
+									<c:if test="${user.middleName==''||user.middleName==null}">
+						            -</c:if>
+									</td>
+									<td>${user.departmentName}&nbsp;</td>
+									
+									<td>${user.hireOnDateValue}&nbsp;</td>
+									<td>${user.terminateDateValue}&nbsp;</td>		
+									<td>
+										<c:if test="${user.status=='Active'}">
+										<span class="label label-success">${user.status}</span>
+										</c:if>
+										<c:if test="${user.status=='Closed'}">
+										<span class="label label-important">${user.status}</span>
+										</c:if>
+										<c:if test="${user.status=='Inactive'}">
+										<span class="label label-warning">${user.status}</span>
+										</c:if>
+									</td>				
+									<td style="text-align:center"> 
+									<c:if test="${user.isSupervisor}"><i class="icon-check"></i></c:if>
+									<c:if test="${!user.isSupervisor}"><i class="icon-check-empty "></i></c:if> 		
+									</td>
+									<td style="text-align:center"> 
+									<c:if test="${user.isExport}"><i class="icon-check"></i></c:if>
+									<c:if test="${!user.isExport}"><i class="icon-check-empty "></i></c:if> 
+									</td>															
+									<td>${user.mobile}&nbsp;
+									<c:if test="${user.mobile==''||user.mobile==null}">
+						            -</c:if>
+						            </td>
+									<td>${user.phone}&nbsp;
+									<c:if test="${user.phone==''||user.phone==null}">
+						            -</c:if>
+						            </td>
+									<td>${user.fax}&nbsp;
+									<c:if test="${user.fax==''||user.fax==null}">
+						            -</c:if>
+						            </td>
+									<td>${user.clockId}&nbsp;</td>
+									<td>${user.payId}&nbsp;
+									<c:if test="${user.payId==''||user.payId==null}">
+						            -</c:if>
+									</td>	
+									<td>${user.payGroupName}&nbsp;</td>
+									<td>${user.timeRoundingName}&nbsp;
+									<c:if test="${user.timeRoundingName==''||user.timeRoundingName==null}">
+						            -</c:if>
+									</td>
+									<td>
+										<div class="text-left">
+											<a href="javascript:;" onclick="employee.update('${user.employeeId}')" class="btn btn-warning btn-mini"> 
+												<i class="icon-pencil "></i> 
+												<span><fmt:message key="global.info.edit" /><!--Edit--></span>												
+											</a> 
+											
+											<a href="javascript:;" onclick="employee.updateStatus('${user.employeeId}')" class="btn btn-warning btn-mini"> 
+												<i class="icon-pencil "></i> 
+												<span><fmt:message key="global.info.status" /><!--Status--></span>												
+											</a> 
+										</div>
+									</td>
+								</tr>
+								</c:forEach> 
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

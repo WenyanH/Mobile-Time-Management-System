@@ -1,0 +1,147 @@
+package com.tms.entity.tms;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
+
+import com.tms.entity.Company;
+import com.tms.entity.Employee;
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(name = "Leaves")
+public class Leave {
+	@Id
+	@GeneratedValue(generator = "system-uuid")
+	@GenericGenerator(name = "system-uuid", strategy = "uuid2")
+	private String id;
+	private String description;
+	private double duration;
+	private String fromLeaveTime;
+	private String toLeaveTime;
+	private boolean byWorkHours = false;
+	private Date fromDate = new Date();
+	private Date toDate = new Date();
+	
+	@ManyToOne
+	private PayType payType;
+	
+	@ManyToOne
+	private Employee employee;
+	
+	@Lob
+	private String Memo;
+
+	@ManyToOne
+	private Company company;
+	
+	
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public double getDuration() {
+		return duration;
+	}
+
+	public void setDuration(double duration) {
+		this.duration = duration;
+	}
+
+	public String getFromLeaveTime() {
+		return fromLeaveTime;
+	}
+
+	public void setFromLeaveTime(String fromLeaveTime) {
+		this.fromLeaveTime = fromLeaveTime;
+	}
+
+	public String getToLeaveTime() {
+		return toLeaveTime;
+	}
+
+	public void setToLeaveTime(String toLeaveTime) {
+		this.toLeaveTime = toLeaveTime;
+	}
+
+	public String getMemo() {
+		return Memo;
+	}
+
+	public void setMemo(String memo) {
+		Memo = memo;
+	}
+
+	public Date getFromDate() {
+		return fromDate;
+	}
+
+	public void setFromDate(Date fromDate) {
+		this.fromDate = fromDate;
+	}
+
+	public Date getToDate() {
+		return toDate;
+	}
+
+	public void setToDate(Date toDate) {
+		this.toDate = toDate;
+	}
+
+	public boolean isByWorkHours() {
+		return byWorkHours;
+	}
+
+	public void setByWorkHours(boolean byWorkHours) {
+		this.byWorkHours = byWorkHours;
+	}
+	
+	public PayType getPayType() {
+		return payType;
+	}
+
+	public void setPayType(PayType payType) {
+		this.payType = payType;
+	}
+
+	public Employee getEmployee() {
+		return employee;
+	}
+
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
+	}
+}

@@ -1,0 +1,92 @@
+package com.tms.entity.tms;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class ScheduleRule {
+
+	@Id
+	private String id;
+	
+	private String name;
+	
+	private int dayStart;//开始天偏移量
+	
+	private Date startTime;//开始时间
+
+	private Date endTime;//结束时间
+
+	private int dayEnd;//结束天偏移量
+	
+	@ManyToOne
+	private Schedule schedule;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public int getDayStart() {
+		return dayStart;
+	}
+
+	public void setDayStart(int dayStart) {
+		this.dayStart = dayStart;
+	}
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public int getDayEnd() {
+		return dayEnd;
+	}
+
+	public void setDayEnd(int dayEnd) {
+		this.dayEnd = dayEnd;
+	}
+
+	public Schedule getSchedule() {
+		return schedule;
+	}
+
+	public void setSchedule(Schedule schedule) {
+		this.schedule = schedule;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+}

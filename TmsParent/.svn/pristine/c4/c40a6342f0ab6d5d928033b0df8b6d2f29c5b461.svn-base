@@ -1,0 +1,185 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="webpath" uri="/WEB-INF/tlds/path.tld"%>
+
+<head>
+	<script>
+	$(document).ready(function(){
+		paygroup.initSavePage();
+	});
+	</script>
+</head>
+
+
+
+<div class='row-fluid' style="width: 780px;padding: 10px">	
+<form id="paygroupForm" action='#' onsubmit="return false;" class="form form-horizontal form-horizontal2" style="margin-bottom: 0;"
+	method="post" accept-charset="UTF-8">
+	<input class="span12" name="id" type="hidden" id="id" value="${paygroup.id}" />
+	<div class='row-fluid' style="height: 370px">
+		<div id="alertMessage"></div>
+
+		<div class='row-fluid'>
+			<div class='span6'>
+				<div class="control-group">
+					<label class="control-label"><font color="red">*</font> <span><fmt:message key="savepaygroup.info.code" /></span>
+					</label>
+					<div class="controls">
+						<input class="span12" name="code" type="text" id="code"
+							value="${paygroup.code}" maxlength="3"/>
+
+					</div>
+				</div>
+			</div>
+
+			<div class='span6'>
+				<div class="control-group">
+					<label class="control-label"> <span><fmt:message key="savepaygroup.info.status" /></span></label>
+					<div class="controls">
+						<label class="checkbox inline"> <c:if
+								test="${paygroup.id==null}">
+								<input type="checkbox" id="status" value="true"
+									checked="checked" disabled>
+							</c:if> <c:if test="${paygroup.id!=null}">
+								<input type="checkbox" id="status" value="true"
+									<c:if test="${paygroup.active}">checked="checked"</c:if>>
+							</c:if> <span><fmt:message key="global.info.active" /></span>
+						</label>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class='row-fluid'>
+			<div class='span6'>
+				<div class="control-group">
+					<label class="control-label"><font color="red">*</font> <span><fmt:message key="savepaygroup.info.name" /></span></label>
+					<div class="controls">
+						<input class="span12" name="name" type="text" id="name"
+							value="${paygroup.name}" maxlength="40"/>
+					</div>
+				</div>
+			</div>
+
+			<div class='span6'>
+				<div class="control-group">
+					<label class="control-label"><font color="red">*</font> <span><fmt:message key="savepaygroup.info.dailyhours" /></span></label>
+					<div class="controls">
+						<input class="span12" name="dailyHours" type="text"
+							id="dailyHours" value="${paygroup.dailyHours}" />
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class='row-fluid'>
+			<div class='span6'>
+				<div class="control-group">
+					<label class="control-label"> <span><fmt:message key="savepaygroup.info.payperiod" /></span></label>
+					<div class="controls">
+						<select id="period" name="period" class="span12" data-placeholder=" " tabindex="1" >
+							<c:forEach var="period" items="${ptype}">									
+								<option value="${period}" <c:if test="${period==paygroup.payPeriod}">selected</c:if>>${period}</option>
+							</c:forEach>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<div class='span6'>
+				<div class="control-group">
+					<label class="control-label"> <span><fmt:message key="savepaygroup.info.startdate" /></span></label>
+					<div class="controls input-append date" id="startdatetime" data-date-format="yyyy-mm-dd" style="display: block;">
+						<input class="" name="startTime" type="text" id="startTime" style="width:208px;" value="<fmt:formatDate value="${paygroup.startTime}" type="date" pattern="yyyy-MM-dd"/>" readonly/>
+						<span class='add-on' style="cursor: pointer;">
+				           <i class='icon-calendar'></i>
+				        </span>			
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class='row-fluid'>
+			<div class='span12'>
+				<div class="control-group">
+					<label class="control-label"> <span><fmt:message key="savepaygroup.info.validators" /></span></label>					
+					<div class="controls">
+						<div class='row-fluid'>
+							<label class="span4 checkbox inline"> 							
+								<input type="checkbox" id="acceptEA" value="true"
+									<c:if test="${paygroup.acceptEA}">checked="checked"</c:if>>
+							<span><fmt:message key="paygrouplist.info.acceptEA" /></span>
+						</label>
+							
+							<label class="span4 checkbox inline"> 
+								<input type="checkbox" id="acceptLD" value="true"
+									<c:if test="${paygroup.acceptLD}">checked="checked"</c:if>>
+							 <span><fmt:message key="paygrouplist.info.acceptLD" /></span>
+						</label>
+						
+							
+							<label class="span4 checkbox inline"> 
+								<input type="checkbox" id="checkLA" value="true"
+									<c:if test="${paygroup.checkLA}">checked="checked"</c:if>>
+							<span><fmt:message key="paygrouplist.info.checkLA" /></span>
+						</label>													
+			
+						</div>
+
+						<div class='row-fluid'>
+							<label class="span4 checkbox inline"> 
+								<input type="checkbox" id="checkED" value="true"
+									<c:if test="${paygroup.checkED}">checked="checked"</c:if>>
+							 <span><fmt:message key="paygrouplist.info.checkED" /></span>
+						</label>													
+			
+							
+							<label class="span6 checkbox inline"> 
+								<input type="checkbox" id="supervisorMAOT" value="true"
+									<c:if test="${paygroup.supervisorMAOT}">checked="checked"</c:if>>
+							<span><fmt:message key="paygrouplist.info.supervisorMAOT" /></span>
+						</label>													
+					   
+          				</div>
+
+
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class='row-fluid'>
+			<div class='span12'>
+				<div class="control-group">
+					<label class="control-label"> <span><fmt:message key="savepaygroup.info.memo" /></span></label>
+					<div class="controls">
+						<textarea id="memo" name="memo" rows="4" class='span12'>${paygroup.memo}</textarea>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+	<div class="row-fluid" id="savebutton">
+		<c:if test="${paygroup.id==null}">
+			<label class="checkbox inline"> <input id="keepon"
+				type="checkbox" value=""> <span><fmt:message key="global.info.keepon" /></span>
+			</label>
+		</c:if>
+		<button class="btn btn-warning pull-right" type="submit">
+			<i class="icon-save"></i> <span><fmt:message
+					key="global.info.save" /> <!--Save--></span>
+		</button>
+	</div>
+
+</form>
+
+</div>

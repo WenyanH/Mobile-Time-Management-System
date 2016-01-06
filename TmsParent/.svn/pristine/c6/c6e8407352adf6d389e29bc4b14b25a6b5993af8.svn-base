@@ -1,0 +1,120 @@
+package com.tms.entity.tms;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
+
+import com.tms.entity.Company;
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+
+public class Schedule {
+	@Id
+	@GeneratedValue(generator = "system-uuid")
+	@GenericGenerator(name = "system-uuid", strategy = "uuid2")
+    private String id;	
+	private String code;
+	private String name;
+	private boolean active = true;
+	private SchedulePeriod schedulePeriod = SchedulePeriod.Weekly;
+	private String period;
+	private String periodOffset;
+	private String days;
+	private Date startDate;
+	private boolean attribute = false;
+	private String diffPeriod;
+	
+	@ManyToOne
+	private Company company;
+	
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getCode() {
+		return code;
+	}
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public boolean isActive() {
+		return active;
+	}
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	public SchedulePeriod getSchedulePeriod() {
+		return schedulePeriod;
+	}
+	public void setSchedulePeriod(SchedulePeriod schedulePeriod) {
+		this.schedulePeriod = schedulePeriod;
+	}
+	public String getPeriod() {
+		return period;
+	}
+	public void setPeriod(String period) {
+		this.period = period;
+	}
+	public String getDays() {
+		return days;
+	}
+	public void setDays(String days) {
+		this.days = days;
+	}	
+	public Date getStartDate() {
+		return startDate;
+	}
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+	public boolean isAttribute() {
+		return attribute;
+	}
+	public void setAttribute(boolean attribute) {
+		this.attribute = attribute;
+	}
+
+	public String getPeriodOffset() {
+		return periodOffset;
+	}
+
+	public void setPeriodOffset(String periodOffset) {
+		this.periodOffset = periodOffset;
+	}
+
+	public String getDiffPeriod() {
+		return diffPeriod;
+	}
+
+	public void setDiffPeriod(String diffPeriod) {
+		this.diffPeriod = diffPeriod;
+	}
+	
+}

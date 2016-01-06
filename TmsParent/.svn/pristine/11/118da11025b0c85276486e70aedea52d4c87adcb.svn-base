@@ -1,0 +1,100 @@
+package com.tms.entity.punch;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class PunchRecord {
+
+	@Id
+	@GenericGenerator(name = "systemUUID", strategy = "uuid2")
+	@GeneratedValue(generator = "systemUUID")
+	private String id;
+
+	private PunchType type;
+
+	private String code;
+	private Date punchTime;
+
+	private AuthType authType;
+
+	private String workcode;
+
+	private String status;
+	
+	//
+	// 补卡人员姓名
+	// 补卡原因
+	// 补卡时间
+	// 考勤机序列号（目前这期没有设备管理功能暂不需要）
+	// 考勤机名称（目前这期没有设备管理功能暂不需要）
+	// 考勤机所在地（目前这期没有设备管理功能暂不需要）
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public PunchType getType() {
+		return type;
+	}
+
+	public void setType(PunchType type) {
+		this.type = type;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public Date getPunchTime() {
+		return punchTime;
+	}
+
+	public void setPunchTime(Date punchTime) {
+		this.punchTime = punchTime;
+	}
+
+	public AuthType getAuthType() {
+		return authType;
+	}
+
+	public void setAuthType(AuthType authType) {
+		this.authType = authType;
+	}
+
+	public String getWorkcode() {
+		return workcode;
+	}
+
+	public void setWorkcode(String workcode) {
+		this.workcode = workcode;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+}

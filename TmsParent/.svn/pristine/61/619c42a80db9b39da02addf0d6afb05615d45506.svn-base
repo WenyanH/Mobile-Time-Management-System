@@ -1,0 +1,9 @@
+paygrouplist.info.paygroup=Pay Groups
+paygrouplist.info.dailyHours = Daily Hours
+paygrouplist.info.createdOn=Created On
+paygrouplist.info.acceptEA = Accept Early Arrival
+paygrouplist.info.acceptLD = Accept Late Departure
+paygrouplist.info.checkLA = Check Late Arrival
+paygrouplist.info.checkED = Check Early Departure
+paygrouplist.info.supervisorMAOT = Supervisor Manually Approve OT
+paygrouplist.info.validators=Validators

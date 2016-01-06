@@ -1,0 +1,9 @@
+package com.tms.constant;
+
+public class Constants {
+	public static final String SUPER_ADMIN = "superadmin";
+	public static final String ADMIN = "admin";
+	public static final String SUPERVISOR = "supervisor";
+	public static final String PAYROLL = "payroll";
+	public static final String EMPLOYEE = "employee";
+}

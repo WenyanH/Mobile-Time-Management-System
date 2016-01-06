@@ -1,0 +1,3 @@
+jdbc.url = jdbc:mysql://localhost:3306/tms_test?useUnicode=true&amp;characterEncoding=UTF-8&amp;
+jdbc.user = argus
+jdbc.password = passed

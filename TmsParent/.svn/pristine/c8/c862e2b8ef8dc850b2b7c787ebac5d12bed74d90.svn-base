@@ -1,0 +1,49 @@
+package com.tms.service.leave;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.tms.dao.core.Hints;
+import com.tms.dao.leave.LeaveDao;
+import com.tms.entity.tms.Leave;
+
+@Service
+@Transactional(readOnly = true)
+
+public class LeaveService {
+
+	@Autowired
+	private LeaveDao leaveDao;
+	
+	public Leave findById(final String leaveId) {
+		return leaveDao.find(leaveId);
+	}
+
+	public List<Leave> findLeaves(String companyId) {
+		return leaveDao.findLeaves(companyId);
+	}
+	
+	@Transactional
+	public Leave save(final Leave leave) {
+		return leaveDao.save(leave);
+	}
+	@Transactional
+	public void update(Leave leave) {
+		leaveDao.update(leave);
+	}
+	@Transactional
+	public void remove(final String leaveId){
+		leaveDao.remove(leaveId);
+	}
+	
+	public Boolean validateCodeExist(String employeeID, String companyId){
+		return leaveDao.validateCodeExist(employeeID, companyId);
+	}
+	
+	public  List<Leave> findLeavesByEmployeeId(String employeeId){
+		return leaveDao.findLeavesByEmployeeId(employeeId);
+	}
+}

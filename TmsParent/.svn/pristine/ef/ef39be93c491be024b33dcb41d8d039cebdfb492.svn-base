@@ -1,0 +1,14 @@
+package com.tms.calculator.actors;
+
+import akka.actor.UntypedActor;
+
+public class Caculator extends UntypedActor {
+	
+	
+	
+	@Override
+	public void onReceive(Object msg) throws Exception {
+
+	}
+
+}

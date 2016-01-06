@@ -1,0 +1,1 @@
+insert  into `timezone`(`id`,`descr`,`name`) values ('1','NZ','NZ'),('2','SA','SA'),('3','CK','CK'),('4','AE','AE');

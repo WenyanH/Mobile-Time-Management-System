@@ -1,0 +1,74 @@
+package com.tms.entity;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class CompanyStructure {
+	@Id
+	@GenericGenerator(name = "systemUUID", strategy = "uuid2")
+	@GeneratedValue(generator = "systemUUID")
+	private String id;
+	private Boolean isActive = false;
+	private CompanyStructureLevel level;
+	private String labelName;
+	@ManyToOne
+	private Company company;
+	
+	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE }, orphanRemoval = true, mappedBy = "companyStructure")
+	@JsonIgnore
+	private Set<Department> department = new HashSet<>();
+	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+	
+	public CompanyStructureLevel getLevel() {
+		return level;
+	}
+	public void setLevel(CompanyStructureLevel level) {
+		this.level = level;
+	}
+	public String getLabelName() {
+		return labelName;
+	}
+	public void setLabelName(String labelName) {
+		this.labelName = labelName;
+	}
+	public Company getCompany() {
+		return company;
+	}
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+	
+	
+}
