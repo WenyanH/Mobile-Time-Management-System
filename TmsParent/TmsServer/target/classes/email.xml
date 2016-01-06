@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<emailConfigs>
+	<emailConfig>
+		<name>163</name>
+		<smtp>smtp.163.com</smtp>
+		<port>25</port>
+		<description>163邮箱的配置</description>		
+	</emailConfig>
+	<emailConfig>
+		<name>sina</name>
+		<smtp>smtp.sina.cn</smtp>
+		<port>25</port>
+		<description>1sina邮箱的配置(.com和.cn的配置一样)</description>		
+	</emailConfig>
+	<emailConfig>
+		<name>sohu</name>
+		<smtp>smtp.sohu.com</smtp>
+		<port>25</port>
+		<description>sohu邮箱的配置</description>		
+	</emailConfig>
+	<emailConfig>
+		<name>gmail</name>
+		<smtp>smtp.gmail.com</smtp>
+		<port>465</port>
+		<description>Google的Gmail配置</description>		
+	</emailConfig>
+	<emailConfig>
+		<name>qq</name>
+		<smtp>smtp.qq.com</smtp>
+		<port>465</port>
+		<description>QQ的mail配置</description>		
+	</emailConfig>
+</emailConfigs>

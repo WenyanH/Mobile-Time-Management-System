@@ -1,0 +1,83 @@
+package com.tms.dao.employee;
+
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
+
+import com.tms.dao.core.AbsDao;
+import com.tms.dao.core.Hints;
+import com.tms.entity.Employee;
+import com.tms.pages.IPageList;
+import com.tms.pages.PageListImpl;
+
+/**
+ * @author zwq
+ *
+ */
+@Repository
+public class EmployeeDaoImpl extends AbsDao<Employee, String> implements EmployeeDao {
+
+	// 员工分页列表
+	private static final String FIND_EMPLOYEE_PAGE = " from Employee where (jobNumber like ? or firstName like ? or lastName like ? or middleName like ?) and company.id = ? ";
+	// 验证税号
+	private static final String VALIDATE = " from Employee where company.id = ? ";
+	// 指定公司下所有list
+	private static final String FIND_ALL_EMPLOYEE = " from Employee where company.id = ? order by createTime desc";
+	// 员工按查询条件
+	private static final String FIND_EMPLOYEE_BY_CONDITION = " from Employee where company.id = ? AND jobNumber!=null ";
+
+	@Override
+	public Boolean validateExist(String jobNumber, String clockId, String companyId) {
+		
+		StringBuffer sqlWhere = new StringBuffer(); 
+		Long count = (long) 0;
+		
+		if (!StringUtils.isEmpty(jobNumber)|| !StringUtils.isEmpty(clockId)){
+			
+			if (!StringUtils.isEmpty(jobNumber)){
+				if (sqlWhere.length()==0){
+					sqlWhere.append(" and (").append(" jobNumber='").append(jobNumber).append("'");
+				}else{
+					sqlWhere.append(" or jobNumber='").append(jobNumber).append("'");
+				}
+			}
+			
+			if (!StringUtils.isEmpty(clockId)){
+				if (sqlWhere.length()==0){
+					sqlWhere.append(" and (").append(" clockId='").append(clockId).append("'");
+				}else{
+					sqlWhere.append(" or clockId='").append(clockId).append("'");
+				}
+			}
+			sqlWhere.append(")");
+			count = findCount(" select count(*) " + VALIDATE + sqlWhere.toString(), companyId);
+		}
+
+		if (count > 0)
+			return true;
+		else
+			return false;
+	}
+
+	@Override
+	public IPageList<Employee> findEmployeePage(String searchStr, String companyId, String order, String sort, Hints hints) {
+		if (order == null) {
+			order = "createTime";
+		}
+		if (sort == null) {
+			sort = "desc";
+		}
+		String param = "%" + searchStr + "%";
+		IPageList<Employee> employees = new PageListImpl<Employee>();
+		employees.setRecords(find(FIND_EMPLOYEE_PAGE + sortHQL(order, sort), hints, param, param, param, param, companyId));
+		employees.setRecordTotal(findCount(" select count(*) " + FIND_EMPLOYEE_PAGE, param, param, param, param, companyId));
+		return employees;
+	}
+
+	public List<Employee> findAllEmployee(String companyId) {
+		return find(FIND_ALL_EMPLOYEE, new Hints(0), companyId);
+	}
+
+	
+}
